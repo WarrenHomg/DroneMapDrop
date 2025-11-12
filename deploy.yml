@@ -1,11 +1,11 @@
-name: Deploy to GitHub Pages
+name: Deploy Cocos 3.8.7 to GitHub Pages
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -14,18 +14,21 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-      
+          
       - name: Install Cocos Creator CLI
-        run: npm install -g @cocos/creator-cli
+        run: npm install -g @cocos/creator-cli@3.8.7
       
-      - name: Build Project
+      - name: Build Web Mobile
         run: |
-          creator-cli --project . --build "platform=web-mobile;debug=false"
+          creator-cli --project . --build "platform=web-mobile;debug=false;sourceMap=false"
+      
+      - name: Verify Build Output
+        run: |
+          ls -la build/web-mobile/cocos-js/
+          test -f build/web-mobile/cocos-js/cc.js || exit 1
       
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web-mobile
-          # 关键：确保包含所有文件
-          exclude_assets: ''
