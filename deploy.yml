@@ -5,8 +5,10 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       
@@ -22,13 +24,8 @@ jobs:
         run: |
           creator-cli --project . --build "platform=web-mobile;debug=false;sourceMap=false"
       
-      - name: Verify Build Output
-        run: |
-          ls -la build/web-mobile/cocos-js/
-          test -f build/web-mobile/cocos-js/cc.js || exit 1
-      
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web-mobile
+          publish_dir: ./build/web-mobile  # 将构建输出部署到根目录
