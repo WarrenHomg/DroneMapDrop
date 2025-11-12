@@ -1,4 +1,4 @@
-name: Deploy Cocos 3.8.7 to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -8,24 +8,19 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v3
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          node-version: '18'
+          path: .  # 部署根目录所有文件
           
-      - name: Install Cocos Creator CLI
-        run: npm install -g @cocos/creator-cli@3.8.7
-      
-      - name: Build Web Mobile
-        run: |
-          creator-cli --project . --build "platform=web-mobile;debug=false;sourceMap=false"
-      
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web-mobile  # 将构建输出部署到根目录
+        uses: actions/deploy-pages@v2
